@@ -72,7 +72,7 @@ page.on('dialog', dialog => dialog.accept());
 ```
 
 ## 🎥 Video Explicativo
-[Ver video de explicación de la prueba técnica](https://ejemplo.com/video-explicativo) *(link pendiente)*
+[Ver video de explicación de la prueba técnica](https://youtu.be/ZBOPEJ0u024) *(link pendiente)*
 
 ## 🛠️ Tecnologías Utilizadas
 - Playwright 1.42.0
