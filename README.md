@@ -1,114 +1,89 @@
-# 🧪 QA Playwright Challenge – Relke
+# README - Pruebas Automatizadas con Playwright
 
-¡Bienvenido/a! Este es el desafío técnico para el proceso de selección de **QA Engineer Junior** en Relke 🚀
+## 📋 Descripción del Proyecto
+Este proyecto contiene pruebas automatizadas para el sistema de notas de venta de Relbase, implementadas con Playwright. Las pruebas cubren flujos positivos y negativos del sistema.
 
----
+## 🚀 Cómo Ejecutar los Tests
 
-## 🤔 ¿Qué buscamos?
+### Prerrequisitos
+- Tener instalado [Visual Studio Code](https://code.visualstudio.com/)
+- Instalar el plugin de [Playwright para VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright)
 
-En Relke creemos en el crecimiento desde el aprendizaje. Este desafío no busca medir cuántos años de experiencia tienes, sino **cómo aplicas tus conocimientos actuales, tu motivación por aprender y tu capacidad para enfrentar un flujo real de automatización**.
-
-> 🧩 **No es excluyente si tienes menos de 1 año de experiencia.** Si estás recién egresado/a o en tus primeras experiencias laborales, ¡también puedes participar!
-
-Lo importante es que, con tu formación académica y dedicación, **puedas resolver este reto en un tiempo realista (48 horas)** y mostrar cómo piensas como QA.
-
----
-
-## 🎯 Desafío
-
-Tu misión es automatizar con Playwright el flujo de **creación de una Nota de Venta** en nuestro sistema demo:
-
-- 🌐 URL: [https://demo.relbase.cl](https://demo.relbase.cl)
-- 👤 Usuario: `qa_junior@relke.cl`
-- 🔐 Contraseña: `Demo123456!`
-
-### Pasos mínimos esperados
-
-1. Iniciar sesión
-2. Ir a **Ventas > Notas de Venta**
-3. Hacer clic en **Crear nueva nota**
-4. Completar los datos mínimos:
-   - Seleccionar sucursal (Casa matriz)
-   - Seleccionar bodega (Principal)
-   - Seleccionar un cliente (⚠️ puede variar el nombre)
-   - Seleccionar moneda (Pesos)
-   - Agregar al menos un producto
-   - Validar que se calcula un total
-5. Guardar y verificar que aparece en el listado con el total correcto
-
----
-
-## 💡 Reglas y condiciones especiales
-
-- El total debe ser **mayor a $0** y reflejar el precio del producto agregado.
-- Evita usar esperas estáticas (`waitForTimeout`). Usa selectores confiables y `await expect(...)`.
-- Puedes usar Page Object Model si lo prefieres, pero no es obligatorio.
-
----
-
-## 📤 ¿Cómo entregar tu prueba en GitHub?
-
-Como el repositorio original de Relke en Bitbucket es público pero de solo lectura, te pedimos que:
-
-1. Clones este repo:
+### Pasos para Ejecución
+1. Clonar el repositorio
+2. Abrir el proyecto en VSCode
+3. Instalar dependencias con:
    ```bash
-   git clone https://bitbucket.org/relke/relke-qa-challenge.git
-   cd relke-qa-challenge
+   npm install
    ```
+4. Ejecutar los tests:
+   - Abrir el archivo de tests
+   - Hacer clic en "Run Tests" en la parte superior del editor
+   - O ejecutar desde la terminal:
+     ```bash
+     npx playwright test
+     ```
 
-2. Crees un nuevo repositorio en **tu cuenta personal de GitHub** (puede ser público o privado).
+## ✔️ Validaciones Implementadas
 
-3. Cambies el origen remoto en tu entorno local:
-   ```bash
-   git remote remove origin
-   git remote add origin https://github.com/tu_usuario/relke-qa-respuesta.git
-   git push -u origin main
-   ```
-4. Agrega tus pruebas automatizadas dentro de la carpeta `tests/`
+### Pruebas de Autenticación
+- ✅ Inicio de sesión con credenciales válidas
+- ✅ Logout exitoso
+- ❌ Inicio de sesión sin credenciales
+- ❌ Inicio de sesión con credenciales erróneas
 
-5. Crea un `README` dentro de tu repositorio explicando:
-   - Cómo ejecutar tu test
-   - Qué validaciones hiciste
-   - Qué desafíos tuviste o decisiones tomaste
+### Pruebas de Notas de Venta
+- ✅ Happy Path: Creación exitosa de nota de venta
+  - Selección de tipo de documento
+  - Asignación de bodega
+  - Selección de cliente
+  - Agregar productos
+  - Validación de cálculos (cantidad × precio)
+  - Envío del documento
+- ❌ Validación de campos requeridos
+- ❌ Validación de formato en campo cantidad
 
-6. Haz commit y push 
+## 🧩 Desafíos y Decisiones Técnicas
 
-7. Comparte el link del repositorio (y acceso si es privado) por mensaje de Get on board de la postulación
+### Desafío 1: IDs Dinámicos
+**Problema:** Los campos de cantidad tenían IDs que cambiaban en cada ejecución.
 
-> Si no tienes cuenta en GitHub, puedes crear una gratuita en https://github.com
+**Solución:** Implementé selectores robustos usando:
+```typescript
+`tr:has-text("${productName}") input[name*="quantity"]`
+```
 
----
+### Desafío 2: Cálculo de Totales
+**Problema:** Validar que el total coincidiera con precio × cantidad × IVA.
 
-## 📽️ Opcional: muestra tu forma de trabajar
+**Solución:** Implementé conversión de formatos monetarios y validación estricta:
+```typescript
+const totalText = await page.locator('#total').innerText();
+const cleanNumber = parseInt(totalText.replace(/\D/g, ''), 10);
+expect(cleanNumber).toBe(totalEsperado);
+```
 
-Si quieres destacarte, puedes grabar un video (máx 10 min) mostrando cómo trabajaste el desafío: tus pasos, pruebas, validaciones o errores encontrados.
+### Desafío 3: Manejo de Diálogos
+**Problema:** Los diálogos de confirmación bloqueaban el flujo.
 
----
+**Solución:** Configuré un manejador global:
+```typescript
+page.on('dialog', dialog => dialog.accept());
+```
 
-## 🧩 Bonus (opcional)
+## 🎥 Video Explicativo
+[Ver video de explicación de la prueba técnica](https://ejemplo.com/video-explicativo) *(link pendiente)*
 
-Puedes agregar validaciones extra como:
+## 🛠️ Tecnologías Utilizadas
+- Playwright 1.42.0
+- TypeScript
+- Visual Studio Code
 
-- Prueba negativa: ¿qué pasa si no agrego productos?
-- Validación de error de campo requerido
-- Automatización de logout o expiración de sesión
+## 📊 Reportes
+Para generar reportes HTML ejecutar:
+```bash
+npx playwright show-report
+```
 
----
-
-## ⏱️ Tiempo estimado
-
-Tienes **48 horas** desde que recibes esta pauta.
-
----
-
-## 🧠 Consejos
-
-- Usa `npx playwright codegen` si necesitas inspiración, pero asegúrate de entender y limpiar el código generado.
-- Lee los selectores con cuidado. A veces un texto cambia según el estado.
-- Escribe como si tu test fuera a mantenerse en producción.
-- No estamos buscando perfección, sino **compromiso, criterio y capacidad de automatizar flujos funcionales reales**.
-
----
-
-¡Mucho éxito! 💥  
-Relke QA Team
+## 🤝 Contribuciones
+Las sugerencias y mejoras son bienvenidas. Por favor abra un issue o pull request.

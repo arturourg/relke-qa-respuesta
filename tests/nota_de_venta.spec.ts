@@ -16,3 +16,23 @@ test('Login y navegación inicial a Nota de Venta', async ({ page }) => {
 
   await expect(page.getByText('Mostrar:')).toBeVisible();
 });
+
+test('Intentar Login sin credenciales', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await expect(page.getByText('Hubo un problema! Necesitas iniciar sesión para continuar.')).toBeVisible();
+
+});
+
+test('Intentar Login con credenciales incorrectas', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByPlaceholder('Correo Electrónico').fill('qa_junior@relke.cl');
+  await page.getByPlaceholder('Contraseña').fill('clave_incorrecta');
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await expect(page.getByText('Hubo un problema! Correo electrónico y/o contraseña no es válido.')).toBeVisible();
+
+});
